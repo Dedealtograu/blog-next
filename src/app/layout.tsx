@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
-import "./globals.css";
+import type { Metadata } from 'next'
+import './globals.css'
 
 export const metadata: Metadata = {
-  title: "The blog - Este é um blog criado com Next.js",
-  description: "Este é um blog criado com Next.js, TypeScript e Tailwind CSS",
-};
+  title: 'The blog - Este é um blog criado com Next.js',
+  description: 'Este é um blog criado com Next.js, TypeScript e Tailwind CSS',
+}
 
 export default function RootLayout({
   children,
@@ -17,5 +17,5 @@ export default function RootLayout({
         {children}
       </body>
     </html>
-  );
+  )
 }
