@@ -6,6 +6,7 @@
   "code-runner.executorMap": {
     "typescript": "clear ; npx tsx",
   },
+  "workbench.editor.enablePreview": false,
 
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
