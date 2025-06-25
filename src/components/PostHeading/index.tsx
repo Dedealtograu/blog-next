@@ -9,10 +9,10 @@ type PostHeadingProps = {
 
 export function PostHeading({ children, url, as: Tag = 'h2' }: PostHeadingProps) {
   const headingClassMap = {
-    h1: 'text-2xl/tight sm:text-4xl',
-    h2: 'text-2xl/tight sm:text-4xl',
+    h1: 'text-2xl/tight sm:text-4xl font-extrabold',
+    h2: 'text-2xl/tight font-bold',
   }
-  const commonClasses = 'mb-4 font-extrabold'
+  const commonClasses = 'mb-4'
   return (
     <Tag className={clsx(commonClasses, headingClassMap[Tag])}>
       <Link href={url}>{children}</Link>
