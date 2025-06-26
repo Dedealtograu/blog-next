@@ -1,5 +1,5 @@
 import { PostCoverImage } from '../PostCoverImage'
-import { PostHeading } from '../PostHeading'
+import { PostSummary } from '../PostSummary'
 
 export function PostFeatured() {
   const slug = 'lorem-ipsum-dolor-sit-amet'
@@ -18,19 +18,13 @@ export function PostFeatured() {
           priority: true,
         }}
       />
-      <div className='flex flex-col gap-4 sm:justify-center'>
-        <time className='text-slate-600 text-sm/tight' dateTime='2025-06-23'>
-          23/06/2025 - 12:00
-        </time>
-        <PostHeading as='h1' url={postLink}>
-          Lorem ipsum dolor sit ame
-        </PostHeading>
-        <p>
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Iusto ad fugit illo voluptatibus magnam velit quae
-          consequuntur corrupti omnis, esse porro rerum nulla quidem deserunt, aspernatur repudiandae quibusdam aperiam
-          natus.
-        </p>
-      </div>
+      <PostSummary
+        postLink={postLink}
+        postHeading='h1'
+        createdAt='2025-01-01T00:00:00'
+        title='Rotina matinal de pessoas altamente eficazes'
+        excerpt='O Next.js também é uma boa escolha para quem quer se preocupar com performance e SEO.'
+      />
     </section>
   )
 }
