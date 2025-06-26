@@ -17,7 +17,3 @@ export function formatDistanceToNow(rawDate: string): string {
     addSuffix: true
   })
 }
-
-const rawDate = '2023-10-01T12:00:00Z'
-console.log(rawDate)
-console.log(formatDateTime(rawDate))

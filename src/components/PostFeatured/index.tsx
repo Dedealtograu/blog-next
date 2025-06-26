@@ -1,9 +1,11 @@
 import { PostCoverImage } from '../PostCoverImage'
 import { PostSummary } from '../PostSummary'
+import { findAllPublicPosts } from '@/lib/post/queries'
 
-export function PostFeatured() {
-  const slug = 'lorem-ipsum-dolor-sit-amet'
-  const postLink = `/posts/${slug}`
+export async function PostFeatured() {
+  const posts = await findAllPublicPosts()
+  const [firstPost] = posts
+  const postLink = `/posts/${firstPost.slug}`
   return (
     <section className='grid grid-cols-1 gap-8 mb-16 sm:grid-cols-2 group'>
       <PostCoverImage
@@ -13,17 +15,17 @@ export function PostFeatured() {
         imageProps={{
           width: 1200,
           height: 720,
-          src: '/images/bryen_9.png',
-          alt: 'Imagem de capa do post',
+          src: firstPost.coverImageUrl,
+          alt: firstPost.title,
           priority: true,
         }}
       />
       <PostSummary
         postLink={postLink}
         postHeading='h1'
-        createdAt='2025-01-01T00:00:00'
-        title='Rotina matinal de pessoas altamente eficazes'
-        excerpt='O Next.js também é uma boa escolha para quem quer se preocupar com performance e SEO.'
+        createdAt={firstPost.createdAt}
+        title={firstPost.title}
+        excerpt={firstPost.excerpt}
       />
     </section>
   )
