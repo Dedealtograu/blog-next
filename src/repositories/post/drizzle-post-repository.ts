@@ -4,6 +4,8 @@ import { drizzeDb } from '@/db/drizzle'
 import { logColor } from '@/utils/log-color'
 import { asyncDelay } from '@/utils/async-delay'
 import { SIMULATE_WAIT_IN_MS } from '@/lib/constants'
+import { postsTable } from '@/db/drizzle/schemas'
+import { eq } from 'drizzle-orm'
 
 export class DrizzlePostRepository implements PostRepository {
   async findAllPublic(): Promise<PostModel[]> {
@@ -52,6 +54,20 @@ export class DrizzlePostRepository implements PostRepository {
     })
 
     if (!post) throw new Error('Post não encontrado para o id informado')
+
+    return post
+  }
+
+  async delete(id: string): Promise<PostModel> {
+    const post = await drizzeDb.query.posts.findFirst({
+      where: (posts, { eq }) => eq(posts.id, id),
+    })
+
+    if (!post) {
+      throw new Error('Post não existe')
+    }
+
+    await drizzeDb.delete(postsTable).where(eq(postsTable.id, id))
 
     return post
   }
