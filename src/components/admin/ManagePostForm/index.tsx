@@ -4,10 +4,11 @@ import { Button } from '@/components/Button'
 import { InputCheckBox } from '@/components/InputCheckBox'
 import { InputText } from '@/components/InputText'
 import { MarkdownEditor } from '@/components/MarkdownEditor'
-import { useActionState, useState } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import { ImageUploader } from '../ImageUploader'
 import { makePartialPublicPost, PublicPost } from '@/dto/post/dto'
 import { createPostAction } from '@/actions/post/create-post-action'
+import { toast } from 'react-toastify'
 
 type ManagePostFormProps = {
   publicPost?: PublicPost
@@ -15,10 +16,17 @@ type ManagePostFormProps = {
 
 export function ManagePostForm({ publicPost }: ManagePostFormProps) {
   const initialState = {
-    formStste: makePartialPublicPost(publicPost),
+    formState: makePartialPublicPost(publicPost),
     erros: [],
   }
   const [state, action, isPending] = useActionState(createPostAction, initialState)
+
+  useEffect(() => {
+    if (state.erros.length > 0) {
+      toast.dismiss()
+      state.erros.forEach(error => toast.error(error))
+    }
+  }, [state.erros])
 
   const { formState } = state
   const [contentValue, setContentValue] = useState(publicPost?.content || '')
