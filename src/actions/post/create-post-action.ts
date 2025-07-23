@@ -1,9 +1,15 @@
 'use server'
 
+import { drizzeDb } from '@/db/drizzle'
+import { postsTable } from '@/db/drizzle/schemas'
 import { makePartialPublicPost, PublicPost } from '@/dto/post/dto'
 import { PostCreateSchema } from '@/lib/post/validation'
 import { PostModel } from '@/models/post/post-model'
 import { getZodErrorMessages } from '@/utils/get-zod-error-messages'
+import { makeSlugFromText } from '@/utils/make-slug-from-text'
+import { revalidateTag } from 'next/cache'
+import { redirect } from 'next/navigation'
+import { v4 as uuidV4 } from 'uuid'
 
 type CreatePostActionState = {
   formState: PublicPost
@@ -38,12 +44,12 @@ export async function createPostAction(prevState: CreatePostActionState, formDat
     ...validPostData,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    id: Date.now().toString(),
-    slug: Math.random().toString(36),
+    id: uuidV4(),
+    slug: makeSlugFromText(validPostData.title),
   }
+  // TODO: mover este método para repositório
+  await drizzeDb.insert(postsTable).values(newPost)
 
-  return {
-    formState: newPost,
-    erros: []
-  }
+  revalidateTag('posts')
+  redirect(`/admin/posts/${newPost.id}`)
 }
