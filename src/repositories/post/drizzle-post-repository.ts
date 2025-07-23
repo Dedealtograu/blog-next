@@ -71,6 +71,52 @@ export class DrizzlePostRepository implements PostRepository {
 
     return post
   }
+
+  async create(post: PostModel): Promise<PostModel> {
+    const postExists = await drizzeDb.query.posts.findFirst({
+      where: (posts, { or, eq }) =>
+        or(eq(posts.id, post.id), eq(posts.slug, post.slug)),
+      columns: { id: true }
+    })
+
+    if (!!postExists) {
+      throw new Error('Post com o mesmo ID ou Slug já existe')
+    }
+
+    await drizzeDb.insert(postsTable).values(post)
+
+    return post
+  }
+
+  async update(id: string, newPostData: Omit<PostModel, 'id' | 'slug' | 'createdAt' | 'updatedAt'>): Promise<PostModel> {
+    const oldPost = await drizzeDb.query.posts.findFirst({
+      where: (posts, { eq }) => eq(posts.id, id),
+    })
+
+    if (!oldPost) {
+      throw new Error('Post não encontrado')
+    }
+
+    const updatedAt = new Date().toISOString()
+
+    const postData = {
+      author: newPostData.author,
+      content: newPostData.content,
+      coverImageUrl: newPostData.coverImageUrl,
+      excerpt: newPostData.excerpt,
+      published: newPostData.published,
+      title: newPostData.title,
+      updatedAt,
+    }
+
+    await drizzeDb.update(postsTable).set(postData).where(eq(postsTable.id, id))
+
+    return {
+      ...oldPost,
+      ...postData,
+    }
+  }
+
 }
 
 // (async () => {

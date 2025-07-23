@@ -1,23 +1,19 @@
 'use server'
 
 import { makePartialPublicPost, PublicPost } from '@/dto/post/dto'
-import { PostCreateSchema } from '@/lib/post/validation'
-import { PostModel } from '@/models/post/post-model'
+import { PostUpdateSchema } from '@/lib/post/validation'
 import { postRepository } from '@/repositories/post'
 import { getZodErrorMessages } from '@/utils/get-zod-error-messages'
-import { makeSlugFromText } from '@/utils/make-slug-from-text'
 import { revalidateTag } from 'next/cache'
-import { redirect } from 'next/navigation'
-import { v4 as uuidV4 } from 'uuid'
 
-type CreatePostActionState = {
+type UpdatePostActionState = {
   formState: PublicPost
   erros: string[]
   success?: true
 }
 
 
-export async function createPostAction(prevState: CreatePostActionState, formData: FormData): Promise<CreatePostActionState> {
+export async function updatePostAction(prevState: UpdatePostActionState, formData: FormData): Promise<UpdatePostActionState> {
   // TODO: verificar se o usuário tá logado
 
   if (!(formData instanceof FormData)) {
@@ -27,8 +23,17 @@ export async function createPostAction(prevState: CreatePostActionState, formDat
     }
   }
 
+  const id = formData.get('id')?.toString() || ''
+
+  if (!id || typeof id !== 'string') {
+    return {
+      formState: prevState.formState,
+      erros: ['Dados inválidos.'],
+    }
+  }
+
   const formDataToObject = Object.fromEntries(formData.entries())
-  const zodParsedObj =PostCreateSchema.safeParse(formDataToObject)
+  const zodParsedObj = PostUpdateSchema.safeParse(formDataToObject)
 
   if (!zodParsedObj.success) {
     const erros = getZodErrorMessages(zodParsedObj.error.format())
@@ -40,30 +45,34 @@ export async function createPostAction(prevState: CreatePostActionState, formDat
   }
 
   const validPostData = zodParsedObj.data
-  const newPost: PostModel = {
+  const newPost = {
     ...validPostData,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    id: uuidV4(),
-    slug: makeSlugFromText(validPostData.title),
   }
 
+  let post
+
   try {
-    await postRepository.create(newPost)
+    post = await postRepository.update(id, newPost)
   } catch (e: unknown) {
     if (e instanceof Error) {
       return {
-        formState: newPost,
+        formState: makePartialPublicPost(newPost),
         erros: [e.message],
       }
     }
 
     return {
-      formState: newPost,
+      formState: makePartialPublicPost(newPost),
       erros: ['Erro ao criar o post. Tente novamente mais tarde.'],
     }
   }
 
   revalidateTag('posts')
-  redirect(`/admin/posts/${newPost.id}`)
+  revalidateTag(`post-${post.slug}`)
+
+  return {
+    formState: makePartialPublicPost(post),
+    erros: [],
+    success: true,
+  }
 }

@@ -7,7 +7,11 @@ import { ImageUpIcon } from 'lucide-react'
 import { useRef, useState, useTransition } from 'react'
 import { toast } from 'react-toastify'
 
-export function ImageUploader() {
+type ImageUploaderProps = {
+  disabled?: boolean
+}
+
+export function ImageUploader({ disabled = false }: ImageUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isUploading, startTransition] = useTransition()
   const [imgUrl, setImgUrl] = useState('')
@@ -65,7 +69,7 @@ export function ImageUploader() {
 
   return (
     <div className='flex flex-col gap-4 py-4'>
-      <Button onClick={handleChooseFile} type='button' className='self-start' disabled={isUploading}>
+      <Button onClick={handleChooseFile} type='button' className='self-start' disabled={isUploading || disabled}>
         <ImageUpIcon />
         Enviar uma imagem
       </Button>
@@ -78,7 +82,15 @@ export function ImageUploader() {
           <img className='rounded-lg' src={imgUrl} alt='Teste' />
         </div>
       )}
-      <input onChange={handleChange} ref={fileInputRef} className='hidden' name='file' type='file' accept='image/*' />
+      <input
+        onChange={handleChange}
+        ref={fileInputRef}
+        className='hidden'
+        name='file'
+        type='file'
+        accept='image/*'
+        disabled={isUploading || disabled}
+      />
     </div>
   )
 }
