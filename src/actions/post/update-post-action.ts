@@ -4,12 +4,13 @@ import { makePartialPublicPost, PublicPost } from '@/dto/post/dto'
 import { PostUpdateSchema } from '@/lib/post/validation'
 import { postRepository } from '@/repositories/post'
 import { getZodErrorMessages } from '@/utils/get-zod-error-messages'
+import { makeRandomString } from '@/utils/make-random-string'
 import { revalidateTag } from 'next/cache'
 
 type UpdatePostActionState = {
   formState: PublicPost
   erros: string[]
-  success?: true
+  success?: string
 }
 
 
@@ -73,6 +74,6 @@ export async function updatePostAction(prevState: UpdatePostActionState, formDat
   return {
     formState: makePartialPublicPost(post),
     erros: [],
-    success: true,
+    success: makeRandomString(),
   }
 }
