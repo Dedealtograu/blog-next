@@ -1,7 +1,8 @@
 'use server'
 
-import { verifyPassword } from '@/lib/login/manage-login'
+import { createLoginSession, verifyPassword } from '@/lib/login/manage-login'
 import { asyncDelay } from '@/utils/async-delay'
+import { redirect } from 'next/navigation'
 
 type loginActionState = {
   username: string
@@ -38,8 +39,6 @@ export async function loginAction(state: loginActionState, formData: FormData) {
     }
   }
 
-  return {
-    username,
-    error: 'Usuário logado com sucesso!',
-  }
+  await createLoginSession(username)
+  redirect('/admin/post')
 }

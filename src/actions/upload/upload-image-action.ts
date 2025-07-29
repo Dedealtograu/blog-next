@@ -1,5 +1,6 @@
 'use server'
 
+import { verifyLoginSession } from '@/lib/login/manage-login'
 import { mkdir, writeFile } from 'fs/promises'
 import { extname, resolve } from 'path'
 
@@ -10,10 +11,13 @@ type uploadImageActionResylt = {
 
 
 export async function uploadImageAction(formData: FormData): Promise<uploadImageActionResylt> {
-
-  const uploadMaxSize = Number(process.env.NEXT_PUBLIC_IMAGE_UPLOADER_MAX_SIZE) || 921600
-
   const makeResult = ({url = '', error = ''}) => ({url, error})
+
+  const isAuthenticated = await verifyLoginSession()
+
+  if (!isAuthenticated) {
+    return makeResult({ error: 'Você precisa estar logado para fazer isso' })
+  }
 
   if (!(formData instanceof FormData)) {
     return makeResult({ error: 'Dados inválidos' })
@@ -24,6 +28,8 @@ export async function uploadImageAction(formData: FormData): Promise<uploadImage
   if (!(file instanceof File)) {
     return makeResult({ error: 'Arquivo inválido' })
   }
+
+  const uploadMaxSize = Number(process.env.NEXT_PUBLIC_IMAGE_UPLOADER_MAX_SIZE) || 921600
 
   if (file.size > uploadMaxSize) {
     return makeResult({ error: 'Arquivo muito grande' })

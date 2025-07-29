@@ -1,6 +1,7 @@
 'use server'
 
 import { makePartialPublicPost, PublicPost } from '@/dto/post/dto'
+import { verifyLoginSession } from '@/lib/login/manage-login'
 import { PostUpdateSchema } from '@/lib/post/validation'
 import { postRepository } from '@/repositories/post'
 import { getZodErrorMessages } from '@/utils/get-zod-error-messages'
@@ -15,7 +16,7 @@ type UpdatePostActionState = {
 
 
 export async function updatePostAction(prevState: UpdatePostActionState, formData: FormData): Promise<UpdatePostActionState> {
-  // TODO: verificar se o usuário tá logado
+  const isAuthenticated = await verifyLoginSession()
 
   if (!(formData instanceof FormData)) {
     return {
@@ -35,6 +36,13 @@ export async function updatePostAction(prevState: UpdatePostActionState, formDat
 
   const formDataToObject = Object.fromEntries(formData.entries())
   const zodParsedObj = PostUpdateSchema.safeParse(formDataToObject)
+
+  if (!isAuthenticated) {
+    return {
+      formState: makePartialPublicPost(formDataToObject),
+      erros: ['Você precisa estar logado para atualizar um post.'],
+    }
+  }
 
   if (!zodParsedObj.success) {
     const erros = getZodErrorMessages(zodParsedObj.error.format())

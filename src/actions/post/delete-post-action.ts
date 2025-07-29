@@ -1,10 +1,15 @@
 'use server'
 
+import { verifyLoginSession } from '@/lib/login/manage-login'
 import { postRepository } from '@/repositories/post'
 import { revalidateTag } from 'next/cache'
 
 export async function deletePostAction(id: string) {
-  // TODO: checar login do usuário
+  const isAuthenticated = await verifyLoginSession()
+
+  if (!isAuthenticated) {
+    return { error: 'Você precisa estar logado para deletar um post.' }
+  }
 
   if (!id || typeof id !== 'string') {
     return { error: 'Dados inválidos' }
